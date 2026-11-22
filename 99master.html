@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>九九（くく）暗算マスター</title>
+  <!-- Tailwind CSS の読み込み -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts (丸みがあり読みやすいフォント) -->
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+      touch-action: manipulation; /* ダブルタップズーム防止 */
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    /* カード出現時のアニメーション */
+    @keyframes popIn {
+      0% { transform: scale(0.95); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .animate-pop {
+      animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* ヒートマップのセル調整 */
+    .heatmap-cell {
+      aspect-ratio: 1 / 1;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    .heatmap-cell:active {
+      transform: scale(0.92);
+    }
+
+    /* スクロールバーのすっきり化 */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- ヘッダーナビゲーション -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-4xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2 cursor-pointer" onclick="switchTab('setup')">
+        <span class="bg-amber-400 text-white font-extrabold w-9 h-9 rounded-xl flex items-center justify-center text-lg shadow-sm">九</span>
+        <h1 class="text-lg sm:text-xl font-extrabold text-slate-800 tracking-tight">九九マスター</h1>
+      </div>
+
+      <!-- タブ切り替えボタン（練習中は誤タップ防止のため目立たなくする） -->
+      <nav id="main-nav" class="flex items-center gap-1.5 sm:gap-2">
+        <button id="nav-setup" onclick="switchTab('setup')" class="px-3 py-2 rounded-xl text-sm sm:text-base font-bold transition bg-indigo-600 text-white shadow-sm">
+          れんしゅう
+        </button>
+        <button id="nav-heatmap" onclick="switchTab('heatmap')" class="px-3 py-2 rounded-xl text-sm sm:text-base font-bold transition bg-slate-100 text-slate-600 hover:bg-slate-200">
+          81マスきろく
+        </button>
+        <button id="nav-settings" onclick="switchTab('settings')" class="p-2.5 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition" title="せってい">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ領域 -->
+  <main class="flex-1 max-w-4xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6 flex flex-col">
+
+    <!-- ==========================================
+         1. 出題設定画面 (SETUP VIEW)
+         ========================================== -->
+    <section id="view-setup" class="space-y-5 animate-pop">
+      
+      <!-- モード選択タブ -->
+      <div class="bg-white p-4 sm:p-6 rounded-3xl shadow-sm border border-slate-200">
+        <h2 class="text-base sm:text-lg font-extrabold text-slate-700 mb-3 flex items-center gap-2">
+          <span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm">1</span>
+          どうやって れんしゅうする？
+        </h2>
+        <div class="grid grid-cols-2 gap-2.5 sm:gap-4">
+          <button id="mode-btn-single" onclick="setMode('single')" class="py-3.5 px-3 rounded-2xl font-extrabold text-base sm:text-lg border-2 transition flex flex-col items-center justify-center gap-1 border-indigo-600 bg-indigo-50 text-indigo-700">
+            <span>1つの段だけ</span>
+            <span class="text-xs font-medium opacity-80">じゅんばん・ばらばら</span>
+          </button>
+          <button id="mode-btn-multi" onclick="setMode('multi')" class="py-3.5 px-3 rounded-2xl font-extrabold text-base sm:text-lg border-2 transition flex flex-col items-center justify-center gap-1 border-slate-200 bg-white text-slate-600 hover:bg-slate-50">
+            <span>いくつかの段</span>
+            <span class="text-xs font-medium opacity-80">えらんだ段からランダム</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 1つの段だけモードの設定 -->
+      <div id="panel-single" class="bg-white p-4 sm:p-6 rounded-3xl shadow-sm border border-slate-200 space-y-5">
+        <div>
+          <h3 class="text-base sm:text-lg font-extrabold text-slate-700 mb-3 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm">2</span>
+            どの段をやる？
+          </h3>
+          <div id="single-dan-grid" class="grid grid-cols-3 sm:grid-cols-9 gap-2">
+            <!-- JSで1〜9のボタンを生成 -->
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-base sm:text-lg font-extrabold text-slate-700 mb-3 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm">3</span>
+            出題のじゅんばん
+          </h3>
+          <div class="grid grid-cols-3 gap-2.5">
+            <button id="order-btn-asc" onclick="setSingleOrder('asc')" class="py-3 px-2 rounded-2xl font-bold text-sm sm:text-base border-2 transition border-indigo-600 bg-indigo-50 text-indigo-700">
+              1から順<br><span class="text-xs font-normal">(あがり)</span>
+            </button>
+            <button id="order-btn-desc" onclick="setSingleOrder('desc')" class="py-3 px-2 rounded-2xl font-bold text-sm sm:text-base border-2 transition border-slate-200 bg-white text-slate-600 hover:bg-slate-50">
+              9から逆順<br><span class="text-xs font-normal">(さがり)</span>
+            </button>
+            <button id="order-btn-random" onclick="setSingleOrder('random')" class="py-3 px-2 rounded-2xl font-bold text-sm sm:text-base border-2 transition border-slate-200 bg-white text-slate-600 hover:bg-slate-50">
+              ランダム<br><span class="text-xs font-normal">(ばらばら)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 複数の段モードの設定 -->
+      <div id="panel-multi" class="hidden bg-white p-4 sm:p-6 rounded-3xl shadow-sm border border-slate-200 space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base sm:text-lg font-extrabold text-slate-700 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm">2</span>
+            れんしゅうする段をえらぶ
+          </h3>
+          <div class="flex gap-2">
+            <button onclick="selectAllMulti(true)" class="text-xs sm:text-sm font-bold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200">ぜんぶ選ぶ</button>
+            <button onclick="selectAllMulti(false)" class="text-xs sm:text-sm font-bold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200">ぜんぶ外す</button>
+          </div>
+        </div>
+        <div id="multi-dan-grid" class="grid grid-cols-3 sm:grid-cols-9 gap-2">
+          <!-- JSで1〜9の複数選択ボタンを生成 -->
+        </div>
+        <p class="text-xs text-slate-500">※ えらんだ段の問題がランダムに出ます。</p>
+      </div>
+
+      <!-- 苦手フィルターオプション -->
+      <div class="bg-white p-4 sm:p-5 rounded-3xl shadow-sm border border-slate-200">
+        <label class="flex items-center justify-between cursor-pointer gap-4">
+          <div class="flex items-center gap-3">
+            <span class="w-10 h-10 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center font-extrabold text-lg shrink-0">!</span>
+            <div>
+              <div class="font-extrabold text-slate-800 text-base sm:text-lg">「苦手（赤）」の問題だけ出す</div>
+              <div class="text-xs sm:text-sm text-slate-500">時間がかかった問題・まちがえた問題に絞って特訓します</div>
+            </div>
+          </div>
+          <div class="relative inline-flex items-center shrink-0">
+            <input type="checkbox" id="weak-only-toggle" class="sr-only peer">
+            <div class="w-14 h-8 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-rose-500"></div>
+          </div>
+        </label>
+      </div>
+
+      <!-- スタートボタン -->
+      <div class="pt-1 pb-4">
+        <button onclick="startPractice()" class="w-full py-4 sm:py-5 rounded-3xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-extrabold text-xl sm:text-2xl shadow-lg shadow-indigo-200 transition flex items-center justify-center gap-3">
+          <span>スタート！</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         2. 練習画面 (PRACTICE VIEW)
+         ========================================== -->
+    <section id="view-practice" class="hidden flex-1 flex flex-col justify-between space-y-4">
+      
+      <!-- 上部ステータスバー（進捗・中断ボタン） -->
+      <div class="flex items-center justify-between bg-white px-4 py-3 rounded-2xl border border-slate-200 shadow-sm">
+        <button onclick="abortPractice()" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-sm flex items-center gap-1">
+          <span>← やめる</span>
+        </button>
+        
+        <div class="flex items-center gap-3">
+          <span id="practice-mode-label" class="text-xs sm:text-sm font-bold px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700">7の段</span>
+          <span id="practice-progress" class="font-extrabold text-slate-700 text-base sm:text-lg">1 / 9</span>
+        </div>
+
+        <div class="flex items-center gap-1.5 text-slate-600 font-bold text-sm sm:text-base min-w-[70px] justify-end">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span id="live-timer" class="tabular-nums">0.0秒</span>
+        </div>
+      </div>
+
+      <!-- 中央の問題カード（タップで答え表示） -->
+      <div id="question-card" onclick="revealAnswer()" class="flex-1 min-h-[260px] sm:min-h-[320px] bg-white rounded-3xl border-2 border-slate-200 shadow-md flex flex-col items-center justify-center p-6 cursor-pointer relative overflow-hidden transition active:scale-[0.99]">
+        
+        <!-- 過去のステータスバッジ（参考表示） -->
+        <div id="question-prev-badge" class="absolute top-4 right-4 text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-500">
+          はじめて
+        </div>
+
+        <!-- 式と答え -->
+        <div class="text-center my-auto">
+          <div id="question-text" class="text-6xl sm:text-8xl font-extrabold text-slate-800 tracking-wider leading-tight">
+            7 × 8
+          </div>
+
+          <!-- 答え表示エリア（ステップ2で出現） -->
+          <div id="answer-area" class="hidden mt-4 sm:mt-6 pt-4 sm:pt-6 border-t-2 border-dashed border-slate-200 animate-pop">
+            <div class="flex items-baseline justify-center gap-3">
+              <span class="text-2xl sm:text-3xl font-bold text-slate-400">=</span>
+              <span id="answer-text" class="text-6xl sm:text-8xl font-extrabold text-indigo-600">56</span>
+            </div>
+            <div class="mt-3 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100">
+              <span class="text-sm font-bold text-slate-600">かかった時間：</span>
+              <span id="result-time-text" class="text-lg sm:text-xl font-extrabold text-slate-800 tabular-nums">1.8秒</span>
+              <span id="result-rank-badge" class="text-xs font-extrabold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700">とくい！</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ステップ1のガイドメッセージ -->
+        <div id="tap-prompt" class="mt-4 text-indigo-600 font-extrabold text-base sm:text-lg bg-indigo-50 px-5 py-2.5 rounded-2xl animate-pulse">
+          こえに出して 言えたら タップ！
+        </div>
+      </div>
+
+      <!-- 下部アクションエリア -->
+      <div class="h-24 sm:h-28 flex items-center">
+        <!-- ステップ1用：大きな「こたえを見る」ボタン -->
+        <button id="btn-show-answer" onclick="revealAnswer()" class="w-full h-full rounded-3xl bg-amber-400 hover:bg-amber-500 active:scale-[0.98] text-slate-900 font-extrabold text-2xl sm:text-3xl shadow-md transition flex items-center justify-center gap-2">
+          <span>こたえを見る</span>
+        </button>
+
+        <!-- ステップ2用：○ / × 自己判定ボタン -->
+        <div id="grade-buttons" class="hidden w-full h-full grid grid-cols-2 gap-3 sm:gap-5">
+          <button onclick="recordAndNext(false)" class="h-full rounded-3xl bg-rose-500 hover:bg-rose-600 active:scale-[0.97] text-white font-extrabold text-xl sm:text-2xl shadow-md transition flex flex-col items-center justify-center">
+            <span class="text-3xl sm:text-4xl leading-none mb-1">×</span>
+            <span>まちがえた</span>
+          </button>
+          <button onclick="recordAndNext(true)" class="h-full rounded-3xl bg-emerald-500 hover:bg-emerald-600 active:scale-[0.97] text-white font-extrabold text-xl sm:text-2xl shadow-md transition flex flex-col items-center justify-center">
+            <span class="text-3xl sm:text-4xl leading-none mb-1">○</span>
+            <span>あってた！</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         3. 練習完了サマリー画面 (SUMMARY VIEW)
+         ========================================== -->
+    <section id="view-summary" class="hidden space-y-5 animate-pop">
+      <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm text-center space-y-4">
+        <div class="w-16 h-16 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mx-auto text-3xl font-extrabold">
+          ★
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">おつかれさま！</h2>
+        <p class="text-slate-600 font-medium">今回のれんしゅう結果が 81マスに きろくされました。</p>
+
+        <div class="grid grid-cols-3 gap-3 max-w-md mx-auto pt-2">
+          <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+            <div class="text-xs font-bold text-slate-500">問題数</div>
+            <div id="sum-total" class="text-2xl font-extrabold text-slate-800 mt-1">9問</div>
+          </div>
+          <div class="bg-emerald-50 p-3 rounded-2xl border border-emerald-100">
+            <div class="text-xs font-bold text-emerald-700">○ あってた</div>
+            <div id="sum-correct" class="text-2xl font-extrabold text-emerald-600 mt-1">8問</div>
+          </div>
+          <div class="bg-indigo-50 p-3 rounded-2xl border border-indigo-100">
+            <div class="text-xs font-bold text-indigo-700">平均タイム</div>
+            <div id="sum-avg-time" class="text-2xl font-extrabold text-indigo-600 mt-1">2.1秒</div>
+          </div>
+        </div>
+
+        <!-- 今回間違えた・時間がかかった問題のリスト -->
+        <div id="sum-weak-box" class="hidden text-left bg-rose-50 border border-rose-200 rounded-2xl p-4 max-w-md mx-auto">
+          <div class="text-sm font-extrabold text-rose-700 mb-2">つぎに れんしゅうしたい問題：</div>
+          <div id="sum-weak-list" class="flex flex-wrap gap-2"></div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4">
+          <button onclick="retrySameSession()" class="py-3.5 px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-base shadow-sm transition">
+            もう1回やる
+          </button>
+          <button onclick="switchTab('heatmap')" class="py-3.5 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-base shadow-sm transition">
+            81マスを見る
+          </button>
+          <button onclick="switchTab('setup')" class="py-3.5 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-base transition">
+            メニューへもどる
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         4. 81マス ヒートマップ画面 (HEATMAP VIEW)
+         ========================================== -->
+    <section id="view-heatmap" class="hidden space-y-4 animate-pop">
+      <div class="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 class="text-lg sm:text-xl font-extrabold text-slate-800">九九 81マスきろく</h2>
+            <p class="text-xs sm:text-sm text-slate-500">マスをタップすると くわしいタイムが見られます</p>
+          </div>
+
+          <!-- 色の凡例 -->
+          <div class="flex flex-wrap items-center gap-2 text-xs font-bold">
+            <span class="flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-100 text-emerald-800">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              とくい(<span id="legend-fast">2.0</span>秒以下)
+            </span>
+            <span class="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-100 text-amber-800">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+              ふつう
+            </span>
+            <span class="flex items-center gap-1 px-2 py-1 rounded-lg bg-rose-100 text-rose-800">
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+              にがて(<span id="legend-slow">8.0</span>秒以上/×)
+            </span>
+            <span class="flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-100 text-slate-600">
+              <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
+              まだ
+            </span>
+          </div>
+        </div>
+
+        <!-- 選択したマスの詳細パネル -->
+        <div id="cell-detail-banner" class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-2 min-h-[58px]">
+          <span class="text-sm text-slate-500 font-medium">↓ 下のマスをタップして詳細を確認</span>
+        </div>
+
+        <!-- 9x9 グリッドテーブル -->
+        <div class="overflow-x-auto pb-1">
+          <div class="min-w-[330px] max-w-[560px] mx-auto">
+            <!-- 列ヘッダー (×1 〜 ×9) -->
+            <div class="grid grid-cols-10 gap-1 sm:gap-1.5 mb-1 sm:mb-1.5 text-center font-extrabold text-xs sm:text-sm text-slate-400">
+              <div class="flex items-center justify-center text-[11px] text-slate-400">段＼数</div>
+              <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div>
+            </div>
+            <!-- 9行分のマス (JSで生成) -->
+            <div id="heatmap-grid" class="space-y-1 sm:space-y-1.5"></div>
+          </div>
+        </div>
+
+        <!-- 集計サマリーとデータリセットボタン -->
+        <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+          <div id="heatmap-stats" class="text-xs sm:text-sm font-bold text-slate-600">
+            とくい: 0 / 81マス
+          </div>
+
+          <button onclick="openResetModal()" class="px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-bold text-xs sm:text-sm transition flex items-center gap-1.5">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-
