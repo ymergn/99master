@@ -4,19 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>九九（くく）暗算マスター</title>
-  <!-- Tailwind CSS の読み込み -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts (丸みがあり読みやすいフォント) -->
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'M PLUS Rounded 1c', sans-serif;
-      touch-action: manipulation; /* ダブルタップズーム防止 */
+      touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
     }
-
-    /* カード出現時のアニメーション */
     @keyframes popIn {
       0% { transform: scale(0.95); opacity: 0; }
       100% { transform: scale(1); opacity: 1; }
@@ -24,8 +20,6 @@
     .animate-pop {
       animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
-
-    /* ヒートマップのセル調整 */
     .heatmap-cell {
       aspect-ratio: 1 / 1;
       transition: transform 0.1s ease, box-shadow 0.1s ease;
@@ -33,8 +27,6 @@
     .heatmap-cell:active {
       transform: scale(0.92);
     }
-
-    /* スクロールバーのすっきり化 */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -47,7 +39,6 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-  <!-- ヘッダーナビゲーション -->
   <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
     <div class="max-w-4xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between">
       <div class="flex items-center gap-2 cursor-pointer" onclick="switchTab('setup')">
@@ -55,7 +46,6 @@
         <h1 class="text-lg sm:text-xl font-extrabold text-slate-800 tracking-tight">九九マスター</h1>
       </div>
 
-      <!-- タブ切り替えボタン（練習中は誤タップ防止のため目立たなくする） -->
       <nav id="main-nav" class="flex items-center gap-1.5 sm:gap-2">
         <button id="nav-setup" onclick="switchTab('setup')" class="px-3 py-2 rounded-xl text-sm sm:text-base font-bold transition bg-indigo-600 text-white shadow-sm">
           れんしゅう
@@ -73,15 +63,10 @@
     </div>
   </header>
 
-  <!-- メインコンテンツ領域 -->
   <main class="flex-1 max-w-4xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6 flex flex-col">
 
-    <!-- ==========================================
-         1. 出題設定画面 (SETUP VIEW)
-         ========================================== -->
+    <!-- 1. 出題設定画面 -->
     <section id="view-setup" class="space-y-5 animate-pop">
-      
-      <!-- モード選択タブ -->
       <div class="bg-white p-4 sm:p-6 rounded-3xl shadow-sm border border-slate-200">
         <h2 class="text-base sm:text-lg font-extrabold text-slate-700 mb-3 flex items-center gap-2">
           <span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm">1</span>
@@ -99,16 +84,13 @@
         </div>
       </div>
 
-      <!-- 1つの段だけモードの設定 -->
       <div id="panel-single" class="bg-white p-4 sm:p-6 rounded-3xl shadow-sm border border-slate-200 space-y-5">
         <div>
           <h3 class="text-base sm:text-lg font-extrabold text-slate-700 mb-3 flex items-center gap-2">
             <span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm">2</span>
             どの段をやる？
           </h3>
-          <div id="single-dan-grid" class="grid grid-cols-3 sm:grid-cols-9 gap-2">
-            <!-- JSで1〜9のボタンを生成 -->
-          </div>
+          <div id="single-dan-grid" class="grid grid-cols-3 sm:grid-cols-9 gap-2"></div>
         </div>
 
         <div>
@@ -130,7 +112,6 @@
         </div>
       </div>
 
-      <!-- 複数の段モードの設定 -->
       <div id="panel-multi" class="hidden bg-white p-4 sm:p-6 rounded-3xl shadow-sm border border-slate-200 space-y-4">
         <div class="flex items-center justify-between">
           <h3 class="text-base sm:text-lg font-extrabold text-slate-700 flex items-center gap-2">
@@ -142,13 +123,10 @@
             <button onclick="selectAllMulti(false)" class="text-xs sm:text-sm font-bold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200">ぜんぶ外す</button>
           </div>
         </div>
-        <div id="multi-dan-grid" class="grid grid-cols-3 sm:grid-cols-9 gap-2">
-          <!-- JSで1〜9の複数選択ボタンを生成 -->
-        </div>
+        <div id="multi-dan-grid" class="grid grid-cols-3 sm:grid-cols-9 gap-2"></div>
         <p class="text-xs text-slate-500">※ えらんだ段の問題がランダムに出ます。</p>
       </div>
 
-      <!-- 苦手フィルターオプション -->
       <div class="bg-white p-4 sm:p-5 rounded-3xl shadow-sm border border-slate-200">
         <label class="flex items-center justify-between cursor-pointer gap-4">
           <div class="flex items-center gap-3">
@@ -165,7 +143,6 @@
         </label>
       </div>
 
-      <!-- スタートボタン -->
       <div class="pt-1 pb-4">
         <button onclick="startPractice()" class="w-full py-4 sm:py-5 rounded-3xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-extrabold text-xl sm:text-2xl shadow-lg shadow-indigo-200 transition flex items-center justify-center gap-3">
           <span>スタート！</span>
@@ -176,22 +153,16 @@
       </div>
     </section>
 
-    <!-- ==========================================
-         2. 練習画面 (PRACTICE VIEW)
-         ========================================== -->
+    <!-- 2. 練習画面 -->
     <section id="view-practice" class="hidden flex-1 flex flex-col justify-between space-y-4">
-      
-      <!-- 上部ステータスバー（進捗・中断ボタン） -->
       <div class="flex items-center justify-between bg-white px-4 py-3 rounded-2xl border border-slate-200 shadow-sm">
         <button onclick="abortPractice()" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-sm flex items-center gap-1">
           <span>← やめる</span>
         </button>
-        
         <div class="flex items-center gap-3">
           <span id="practice-mode-label" class="text-xs sm:text-sm font-bold px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700">7の段</span>
           <span id="practice-progress" class="font-extrabold text-slate-700 text-base sm:text-lg">1 / 9</span>
         </div>
-
         <div class="flex items-center gap-1.5 text-slate-600 font-bold text-sm sm:text-base min-w-[70px] justify-end">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -200,21 +171,14 @@
         </div>
       </div>
 
-      <!-- 中央の問題カード（タップで答え表示） -->
       <div id="question-card" onclick="revealAnswer()" class="flex-1 min-h-[260px] sm:min-h-[320px] bg-white rounded-3xl border-2 border-slate-200 shadow-md flex flex-col items-center justify-center p-6 cursor-pointer relative overflow-hidden transition active:scale-[0.99]">
-        
-        <!-- 過去のステータスバッジ（参考表示） -->
         <div id="question-prev-badge" class="absolute top-4 right-4 text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-500">
           はじめて
         </div>
-
-        <!-- 式と答え -->
         <div class="text-center my-auto">
           <div id="question-text" class="text-6xl sm:text-8xl font-extrabold text-slate-800 tracking-wider leading-tight">
             7 × 8
           </div>
-
-          <!-- 答え表示エリア（ステップ2で出現） -->
           <div id="answer-area" class="hidden mt-4 sm:mt-6 pt-4 sm:pt-6 border-t-2 border-dashed border-slate-200 animate-pop">
             <div class="flex items-baseline justify-center gap-3">
               <span class="text-2xl sm:text-3xl font-bold text-slate-400">=</span>
@@ -227,21 +191,15 @@
             </div>
           </div>
         </div>
-
-        <!-- ステップ1のガイドメッセージ -->
         <div id="tap-prompt" class="mt-4 text-indigo-600 font-extrabold text-base sm:text-lg bg-indigo-50 px-5 py-2.5 rounded-2xl animate-pulse">
           こえに出して 言えたら タップ！
         </div>
       </div>
 
-      <!-- 下部アクションエリア -->
       <div class="h-24 sm:h-28 flex items-center">
-        <!-- ステップ1用：大きな「こたえを見る」ボタン -->
         <button id="btn-show-answer" onclick="revealAnswer()" class="w-full h-full rounded-3xl bg-amber-400 hover:bg-amber-500 active:scale-[0.98] text-slate-900 font-extrabold text-2xl sm:text-3xl shadow-md transition flex items-center justify-center gap-2">
           <span>こたえを見る</span>
         </button>
-
-        <!-- ステップ2用：○ / × 自己判定ボタン -->
         <div id="grade-buttons" class="hidden w-full h-full grid grid-cols-2 gap-3 sm:gap-5">
           <button onclick="recordAndNext(false)" class="h-full rounded-3xl bg-rose-500 hover:bg-rose-600 active:scale-[0.97] text-white font-extrabold text-xl sm:text-2xl shadow-md transition flex flex-col items-center justify-center">
             <span class="text-3xl sm:text-4xl leading-none mb-1">×</span>
@@ -255,9 +213,7 @@
       </div>
     </section>
 
-    <!-- ==========================================
-         3. 練習完了サマリー画面 (SUMMARY VIEW)
-         ========================================== -->
+    <!-- 3. 練習完了サマリー画面 -->
     <section id="view-summary" class="hidden space-y-5 animate-pop">
       <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm text-center space-y-4">
         <div class="w-16 h-16 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mx-auto text-3xl font-extrabold">
@@ -281,7 +237,6 @@
           </div>
         </div>
 
-        <!-- 今回間違えた・時間がかかった問題のリスト -->
         <div id="sum-weak-box" class="hidden text-left bg-rose-50 border border-rose-200 rounded-2xl p-4 max-w-md mx-auto">
           <div class="text-sm font-extrabold text-rose-700 mb-2">つぎに れんしゅうしたい問題：</div>
           <div id="sum-weak-list" class="flex flex-wrap gap-2"></div>
@@ -301,9 +256,7 @@
       </div>
     </section>
 
-    <!-- ==========================================
-         4. 81マス ヒートマップ画面 (HEATMAP VIEW)
-         ========================================== -->
+    <!-- 4. 81マス ヒートマップ画面 -->
     <section id="view-heatmap" class="hidden space-y-4 animate-pop">
       <div class="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-2">
@@ -311,8 +264,6 @@
             <h2 class="text-lg sm:text-xl font-extrabold text-slate-800">九九 81マスきろく</h2>
             <p class="text-xs sm:text-sm text-slate-500">マスをタップすると くわしいタイムが見られます</p>
           </div>
-
-          <!-- 色の凡例 -->
           <div class="flex flex-wrap items-center gap-2 text-xs font-bold">
             <span class="flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-100 text-emerald-800">
               <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
@@ -333,29 +284,772 @@
           </div>
         </div>
 
-        <!-- 選択したマスの詳細パネル -->
         <div id="cell-detail-banner" class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-2 min-h-[58px]">
           <span class="text-sm text-slate-500 font-medium">↓ 下のマスをタップして詳細を確認</span>
         </div>
 
-        <!-- 9x9 グリッドテーブル -->
         <div class="overflow-x-auto pb-1">
           <div class="min-w-[330px] max-w-[560px] mx-auto">
-            <!-- 列ヘッダー (×1 〜 ×9) -->
             <div class="grid grid-cols-10 gap-1 sm:gap-1.5 mb-1 sm:mb-1.5 text-center font-extrabold text-xs sm:text-sm text-slate-400">
               <div class="flex items-center justify-center text-[11px] text-slate-400">段＼数</div>
               <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div>
             </div>
-            <!-- 9行分のマス (JSで生成) -->
             <div id="heatmap-grid" class="space-y-1 sm:space-y-1.5"></div>
           </div>
         </div>
 
-        <!-- 集計サマリーとデータリセットボタン -->
         <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
           <div id="heatmap-stats" class="text-xs sm:text-sm font-bold text-slate-600">
             とくい: 0 / 81マス
           </div>
-
           <button onclick="openResetModal()" class="px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-bold text-xs sm:text-sm transition flex items-center gap-1.5">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-
+            <span>きろくをリセット</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. 保護者・先生向け 設定画面 -->
+    <section id="view-settings" class="hidden space-y-5 animate-pop">
+      <div class="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+        <div>
+          <h2 class="text-lg sm:text-xl font-extrabold text-slate-800">判定タイムのせってい</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">81マスの「とくい（緑）」「ふつう（黄）」「にがて（赤）」の基準秒数を変更できます。</p>
+        </div>
+
+        <div class="space-y-4 max-w-lg">
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label for="input-fast-sec" class="font-bold text-slate-700 text-sm sm:text-base">
+                「とくい（緑）」にする基準（この秒数以下で ○ なら緑）
+              </label>
+              <span class="font-extrabold text-emerald-600 text-base"><span id="val-fast-sec">2.0</span> 秒以下</span>
+            </div>
+            <input id="input-fast-sec" type="range" min="0.5" max="10.0" step="0.5" value="2.0" oninput="previewSettings()" class="w-full accent-emerald-500 h-2 bg-slate-200 rounded-lg cursor-pointer">
+            <div class="flex justify-between text-[11px] text-slate-400 mt-1">
+              <span>0.5秒（超スピード）</span><span>2.0秒（標準）</span><span>10.0秒</span>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label for="input-slow-sec" class="font-bold text-slate-700 text-sm sm:text-base">
+                「にがて（赤）」にする基準（この秒数以上で赤）
+              </label>
+              <span class="font-extrabold text-rose-600 text-base"><span id="val-slow-sec">8.0</span> 秒以上</span>
+            </div>
+            <input id="input-slow-sec" type="range" min="2.0" max="20.0" step="0.5" value="8.0" oninput="previewSettings()" class="w-full accent-rose-500 h-2 bg-slate-200 rounded-lg cursor-pointer">
+            <div class="flex justify-between text-[11px] text-slate-400 mt-1">
+              <span>2.0秒</span><span>8.0秒（標準）</span><span>20.0秒</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-1.5">※ まちがえた（×）場合は、タイムに関わらず「にがて（赤）」になります。</p>
+          </div>
+        </div>
+
+        <div class="pt-2 flex flex-wrap items-center gap-3">
+          <button onclick="saveSettings()" class="px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-sm sm:text-base shadow-sm transition">
+            せっていを保存する
+          </button>
+          <button onclick="resetSettingsDefault()" class="px-4 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-sm transition">
+            初期値（2.0秒 / 8.0秒）にもどす
+          </button>
+          <span id="settings-saved-msg" class="text-sm font-bold text-emerald-600 hidden">✓ 保存しました！</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="py-3 text-center text-xs text-slate-400">
+    九九暗算マスター — 声に出して どんどん覚えよう！
+  </footer>
+
+  <!-- リセット確認モーダル -->
+  <div id="reset-modal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-xl space-y-4 animate-pop">
+      <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-2xl font-extrabold mx-auto">
+        !
+      </div>
+      <h3 class="text-xl font-extrabold text-center text-slate-800">ほんとうに リセットしますか？</h3>
+      <p class="text-sm text-slate-600 text-center leading-relaxed">
+        これまでの81マスの記録（タイム・正解数・苦手データ）がすべて消えて、まっさらな状態にもどります。
+      </p>
+      <div class="grid grid-cols-2 gap-3 pt-2">
+        <button onclick="closeResetModal()" class="py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-sm transition">
+          やめる
+        </button>
+        <button onclick="executeResetRecords()" class="py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-sm transition shadow-sm">
+          消去する
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY_RECORDS = 'kuku_master_records_v1';
+    const STORAGE_KEY_SETTINGS = 'kuku_master_settings_v1';
+
+    const DEFAULT_SETTINGS = {
+      fastSec: 2.0,
+      slowSec: 8.0
+    };
+
+    function createEmptyRecords() {
+      const rec = {};
+      for (let a = 1; a <= 9; a++) {
+        for (let b = 1; b <= 9; b++) {
+          rec[`${a}x${b}`] = {
+            attempts: 0,
+            correctCount: 0,
+            totalTime: 0,
+            lastTime: null,
+            lastCorrect: null
+          };
+        }
+      }
+      return rec;
+    }
+
+    let settings = loadSettings();
+    let records = loadRecords();
+
+    let setupState = {
+      mode: 'single',
+      singleDan: 7,
+      singleOrder: 'asc',
+      multiDans: [2, 3, 4, 5],
+      weakOnly: false
+    };
+
+    let session = {
+      active: false,
+      questions: [],
+      currentIndex: 0,
+      phase: 'question',
+      questionStartTime: 0,
+      elapsedBeforePause: 0,
+      timerInterval: null,
+      results: [],
+      label: ''
+    };
+
+    let selectedCellKey = null;
+
+    function loadSettings() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY_SETTINGS);
+        if (!raw) return { ...DEFAULT_SETTINGS };
+        const parsed = JSON.parse(raw);
+        return {
+          fastSec: typeof parsed.fastSec === 'number' ? parsed.fastSec : DEFAULT_SETTINGS.fastSec,
+          slowSec: typeof parsed.slowSec === 'number' ? parsed.slowSec : DEFAULT_SETTINGS.slowSec
+        };
+      } catch (e) {
+        return { ...DEFAULT_SETTINGS };
+      }
+    }
+
+    function saveSettingsToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
+      } catch (e) {}
+    }
+
+    function loadRecords() {
+      const empty = createEmptyRecords();
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY_RECORDS);
+        if (!raw) return empty;
+        const parsed = JSON.parse(raw);
+        for (const key of Object.keys(empty)) {
+          if (parsed[key]) {
+            empty[key] = {
+              attempts: Number(parsed[key].attempts) || 0,
+              correctCount: Number(parsed[key].correctCount) || 0,
+              totalTime: Number(parsed[key].totalTime) || 0,
+              lastTime: typeof parsed[key].lastTime === 'number' ? parsed[key].lastTime : null,
+              lastCorrect: typeof parsed[key].lastCorrect === 'boolean' ? parsed[key].lastCorrect : null
+            };
+          }
+        }
+      } catch (e) {}
+      return empty;
+    }
+
+    function saveRecordsToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY_RECORDS, JSON.stringify(records));
+      } catch (e) {}
+    }
+
+    function getCellStatus(rec) {
+      if (!rec || rec.attempts === 0 || rec.lastTime === null) {
+        return 'unplayed';
+      }
+      if (rec.lastCorrect === false || rec.lastTime >= settings.slowSec) {
+        return 'weak';
+      }
+      if (rec.lastCorrect === true && rec.lastTime <= settings.fastSec) {
+        return 'fast';
+      }
+      return 'normal';
+    }
+
+    function getStatusBadgeInfo(status) {
+      switch (status) {
+        case 'fast':
+          return { text: 'とくい！', cls: 'bg-emerald-100 text-emerald-700' };
+        case 'weak':
+          return { text: 'にがて', cls: 'bg-rose-100 text-rose-700' };
+        case 'normal':
+          return { text: 'ふつう', cls: 'bg-amber-100 text-amber-800' };
+        default:
+          return { text: 'はじめて', cls: 'bg-slate-100 text-slate-500' };
+      }
+    }
+
+    function switchTab(tabName) {
+      if (session.active && tabName !== 'practice') {
+        stopTimer();
+        session.active = false;
+      }
+
+      ['setup', 'practice', 'summary', 'heatmap', 'settings'].forEach(id => {
+        const el = document.getElementById(`view-${id}`);
+        if (el) el.classList.add('hidden');
+      });
+
+      const target = document.getElementById(`view-${tabName}`);
+      if (target) target.classList.remove('hidden');
+
+      const navSetup = document.getElementById('nav-setup');
+      const navHeatmap = document.getElementById('nav-heatmap');
+      const navSettings = document.getElementById('nav-settings');
+
+      const activeBtnCls = 'px-3 py-2 rounded-xl text-sm sm:text-base font-bold transition bg-indigo-600 text-white shadow-sm';
+      const inactiveBtnCls = 'px-3 py-2 rounded-xl text-sm sm:text-base font-bold transition bg-slate-100 text-slate-600 hover:bg-slate-200';
+      const activeGearCls = 'p-2.5 rounded-xl bg-indigo-600 text-white shadow-sm transition';
+      const inactiveGearCls = 'p-2.5 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition';
+
+      navSetup.className = (tabName === 'setup' || tabName === 'practice' || tabName === 'summary') ? activeBtnCls : inactiveBtnCls;
+      navHeatmap.className = (tabName === 'heatmap') ? activeBtnCls : inactiveBtnCls;
+      navSettings.className = (tabName === 'settings') ? activeGearCls : inactiveGearCls;
+
+      if (tabName === 'heatmap') {
+        renderHeatmap();
+      } else if (tabName === 'settings') {
+        syncSettingsUI();
+      } else if (tabName === 'setup') {
+        renderSetupGrids();
+      }
+    }
+
+    function renderSetupGrids() {
+      const singleGrid = document.getElementById('single-dan-grid');
+      singleGrid.innerHTML = '';
+      for (let d = 1; d <= 9; d++) {
+        const isSelected = setupState.singleDan === d;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.onclick = () => {
+          setupState.singleDan = d;
+          renderSetupGrids();
+        };
+        btn.className = `py-3 rounded-2xl font-extrabold text-lg border-2 transition ${
+          isSelected
+            ? 'border-indigo-600 bg-indigo-600 text-white shadow-sm scale-[1.02]'
+            : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
+        }`;
+        btn.textContent = `${d}の段`;
+        singleGrid.appendChild(btn);
+      }
+
+      const multiGrid = document.getElementById('multi-dan-grid');
+      multiGrid.innerHTML = '';
+      for (let d = 1; d <= 9; d++) {
+        const isSelected = setupState.multiDans.includes(d);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.onclick = () => toggleMultiDan(d);
+        btn.className = `py-3 rounded-2xl font-extrabold text-lg border-2 transition ${
+          isSelected
+            ? 'border-indigo-600 bg-indigo-600 text-white shadow-sm'
+            : 'border-slate-200 bg-slate-50 text-slate-400 hover:bg-slate-100'
+        }`;
+        btn.textContent = `${d}の段`;
+        multiGrid.appendChild(btn);
+      }
+    }
+
+    function setMode(mode) {
+      setupState.mode = mode;
+      const btnSingle = document.getElementById('mode-btn-single');
+      const btnMulti = document.getElementById('mode-btn-multi');
+      const panelSingle = document.getElementById('panel-single');
+      const panelMulti = document.getElementById('panel-multi');
+
+      if (mode === 'single') {
+        btnSingle.className = 'py-3.5 px-3 rounded-2xl font-extrabold text-base sm:text-lg border-2 transition flex flex-col items-center justify-center gap-1 border-indigo-600 bg-indigo-50 text-indigo-700';
+        btnMulti.className = 'py-3.5 px-3 rounded-2xl font-extrabold text-base sm:text-lg border-2 transition flex flex-col items-center justify-center gap-1 border-slate-200 bg-white text-slate-600 hover:bg-slate-50';
+        panelSingle.classList.remove('hidden');
+        panelMulti.classList.add('hidden');
+      } else {
+        btnMulti.className = 'py-3.5 px-3 rounded-2xl font-extrabold text-base sm:text-lg border-2 transition flex flex-col items-center justify-center gap-1 border-indigo-600 bg-indigo-50 text-indigo-700';
+        btnSingle.className = 'py-3.5 px-3 rounded-2xl font-extrabold text-base sm:text-lg border-2 transition flex flex-col items-center justify-center gap-1 border-slate-200 bg-white text-slate-600 hover:bg-slate-50';
+        panelMulti.classList.remove('hidden');
+        panelSingle.classList.add('hidden');
+      }
+    }
+
+    function setSingleOrder(order) {
+      setupState.singleOrder = order;
+      ['asc', 'desc', 'random'].forEach(o => {
+        const btn = document.getElementById(`order-btn-${o}`);
+        if (o === order) {
+          btn.className = 'py-3 px-2 rounded-2xl font-bold text-sm sm:text-base border-2 transition border-indigo-600 bg-indigo-50 text-indigo-700';
+        } else {
+          btn.className = 'py-3 px-2 rounded-2xl font-bold text-sm sm:text-base border-2 transition border-slate-200 bg-white text-slate-600 hover:bg-slate-50';
+        }
+      });
+    }
+
+    function toggleMultiDan(dan) {
+      const idx = setupState.multiDans.indexOf(dan);
+      if (idx >= 0) {
+        setupState.multiDans.splice(idx, 1);
+      } else {
+        setupState.multiDans.push(dan);
+        setupState.multiDans.sort((a, b) => a - b);
+      }
+      renderSetupGrids();
+    }
+
+    function selectAllMulti(selectAll) {
+      setupState.multiDans = selectAll ? [1, 2, 3, 4, 5, 6, 7, 8, 9] : [];
+      renderSetupGrids();
+    }
+
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function buildQuestionList() {
+      setupState.weakOnly = document.getElementById('weak-only-toggle').checked;
+      let list = [];
+      let label = '';
+
+      if (setupState.mode === 'single') {
+        const d = setupState.singleDan;
+        label = `${d}の段`;
+        let multipliers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+        if (setupState.singleOrder === 'desc') {
+          multipliers.reverse();
+          label += '（逆順）';
+        } else if (setupState.singleOrder === 'random') {
+          multipliers = shuffleArray(multipliers);
+          label += '（ランダム）';
+        } else {
+          label += '（1〜9）';
+        }
+        list = multipliers.map(b => ({ a: d, b, key: `${d}x${b}`, answer: d * b }));
+      } else {
+        if (setupState.multiDans.length === 0) {
+          alert('れんしゅうする段を 1つ以上 えらんでください！');
+          return null;
+        }
+        const sortedDans = [...setupState.multiDans].sort((a, b) => a - b);
+        label = sortedDans.length === 9 ? 'ぜんぶの段（1〜9）' : `${sortedDans.join('・')}の段`;
+        for (const a of sortedDans) {
+          for (let b = 1; b <= 9; b++) {
+            list.push({ a, b, key: `${a}x${b}`, answer: a * b });
+          }
+        }
+        list = shuffleArray(list);
+      }
+
+      if (setupState.weakOnly) {
+        list = list.filter(q => getCellStatus(records[q.key]) === 'weak');
+        label += '・苦手のみ';
+        if (list.length === 0) {
+          alert('えらんだ範囲に「苦手（赤）」の問題はありませんでした！すごい！\nほかの段や「苦手のみ」をオフにして試してみてください。');
+          return null;
+        }
+      }
+
+      return { list, label };
+    }
+
+    function startPractice() {
+      const built = buildQuestionList();
+      if (!built) return;
+
+      session = {
+        active: true,
+        questions: built.list,
+        currentIndex: 0,
+        phase: 'question',
+        questionStartTime: performance.now(),
+        elapsedBeforePause: 0,
+        timerInterval: null,
+        results: [],
+        label: built.label
+      };
+
+      switchTab('practice');
+      loadQuestion(0);
+    }
+
+    function retrySameSession() {
+      if (!session.questions || session.questions.length === 0) {
+        switchTab('setup');
+        return;
+      }
+      const reshuffled = (setupState.mode === 'multi' || setupState.singleOrder === 'random')
+        ? shuffleArray(session.questions)
+        : [...session.questions];
+
+      session.active = true;
+      session.questions = reshuffled;
+      session.currentIndex = 0;
+      session.results = [];
+      switchTab('practice');
+      loadQuestion(0);
+    }
+
+    function abortPractice() {
+      stopTimer();
+      session.active = false;
+      switchTab('setup');
+    }
+
+    function loadQuestion(index) {
+      const q = session.questions[index];
+      session.currentIndex = index;
+      session.phase = 'question';
+      session.elapsedBeforePause = 0;
+      session.questionStartTime = performance.now();
+
+      document.getElementById('practice-mode-label').textContent = session.label;
+      document.getElementById('practice-progress').textContent = `${index + 1} / ${session.questions.length}`;
+      document.getElementById('question-text').textContent = `${q.a} × ${q.b}`;
+      document.getElementById('answer-text').textContent = q.answer;
+
+      const prevRec = records[q.key];
+      const prevBadge = document.getElementById('question-prev-badge');
+      if (prevRec && prevRec.attempts > 0 && prevRec.lastTime !== null) {
+        const st = getCellStatus(prevRec);
+        const info = getStatusBadgeInfo(st);
+        prevBadge.textContent = `前回: ${prevRec.lastTime.toFixed(1)}秒 (${info.text})`;
+        prevBadge.className = `absolute top-4 right-4 text-xs font-bold px-3 py-1 rounded-full ${info.cls}`;
+      } else {
+        prevBadge.textContent = 'はじめて';
+        prevBadge.className = 'absolute top-4 right-4 text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-500';
+      }
+
+      document.getElementById('answer-area').classList.add('hidden');
+      document.getElementById('tap-prompt').classList.remove('hidden');
+      document.getElementById('btn-show-answer').classList.remove('hidden');
+      document.getElementById('grade-buttons').classList.add('hidden');
+      document.getElementById('live-timer').textContent = '0.0秒';
+
+      startTimer();
+    }
+
+    function startTimer() {
+      stopTimer();
+      session.timerInterval = setInterval(() => {
+        if (session.phase !== 'question') return;
+        const now = performance.now();
+        const elapsedSec = (session.elapsedBeforePause + (now - session.questionStartTime)) / 1000;
+        document.getElementById('live-timer').textContent = `${elapsedSec.toFixed(1)}秒`;
+      }, 100);
+    }
+
+    function stopTimer() {
+      if (session.timerInterval) {
+        clearInterval(session.timerInterval);
+        session.timerInterval = null;
+      }
+    }
+
+    function revealAnswer() {
+      if (!session.active || session.phase !== 'question') return;
+
+      const now = performance.now();
+      const totalMs = session.elapsedBeforePause + (now - session.questionStartTime);
+      const elapsedSec = Math.max(0.1, Math.round((totalMs / 1000) * 10) / 10);
+
+      session.phase = 'graded';
+      session.lastMeasuredTime = elapsedSec;
+      stopTimer();
+
+      document.getElementById('live-timer').textContent = `${elapsedSec.toFixed(1)}秒`;
+      document.getElementById('result-time-text').textContent = `${elapsedSec.toFixed(1)}秒`;
+
+      const rankBadge = document.getElementById('result-rank-badge');
+      if (elapsedSec <= settings.fastSec) {
+        rankBadge.textContent = 'スピード◎';
+        rankBadge.className = 'text-xs font-extrabold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700';
+      } else if (elapsedSec >= settings.slowSec) {
+        rankBadge.textContent = 'じっくり';
+        rankBadge.className = 'text-xs font-extrabold px-2 py-0.5 rounded-md bg-rose-100 text-rose-700';
+      } else {
+        rankBadge.textContent = 'いいペース';
+        rankBadge.className = 'text-xs font-extrabold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800';
+      }
+
+      document.getElementById('tap-prompt').classList.add('hidden');
+      document.getElementById('answer-area').classList.remove('hidden');
+      document.getElementById('btn-show-answer').classList.add('hidden');
+      document.getElementById('grade-buttons').classList.remove('hidden');
+    }
+
+    function recordAndNext(isCorrect) {
+      if (!session.active || session.phase !== 'graded') return;
+
+      const q = session.questions[session.currentIndex];
+      const timeSec = session.lastMeasuredTime;
+
+      const rec = records[q.key];
+      rec.attempts += 1;
+      if (isCorrect) rec.correctCount += 1;
+      rec.totalTime = Math.round((rec.totalTime + timeSec) * 10) / 10;
+      rec.lastTime = timeSec;
+      rec.lastCorrect = isCorrect;
+
+      saveRecordsToStorage();
+
+      session.results.push({
+        a: q.a,
+        b: q.b,
+        key: q.key,
+        time: timeSec,
+        correct: isCorrect
+      });
+
+      if (session.currentIndex + 1 < session.questions.length) {
+        loadQuestion(session.currentIndex + 1);
+      } else {
+        finishSession();
+      }
+    }
+
+    function finishSession() {
+      stopTimer();
+      session.active = false;
+
+      const total = session.results.length;
+      const correctCount = session.results.filter(r => r.correct).length;
+      const sumTime = session.results.reduce((acc, r) => acc + r.time, 0);
+      const avgTime = total > 0 ? (sumTime / total).toFixed(1) : '0.0';
+
+      document.getElementById('sum-total').textContent = `${total}問`;
+      document.getElementById('sum-correct').textContent = `${correctCount}問`;
+      document.getElementById('sum-avg-time').textContent = `${avgTime}秒`;
+
+      const weakItems = session.results.filter(r => !r.correct || r.time >= settings.slowSec);
+      const weakBox = document.getElementById('sum-weak-box');
+      const weakList = document.getElementById('sum-weak-list');
+      weakList.innerHTML = '';
+
+      if (weakItems.length > 0) {
+        weakBox.classList.remove('hidden');
+        weakItems.forEach(item => {
+          const chip = document.createElement('span');
+          chip.className = 'px-3 py-1 rounded-xl bg-white border border-rose-200 text-rose-700 font-extrabold text-sm';
+          chip.textContent = `${item.a}×${item.b} (${item.correct ? item.time.toFixed(1) + '秒' : '×'})`;
+          weakList.appendChild(chip);
+        });
+      } else {
+        weakBox.classList.add('hidden');
+      }
+
+      switchTab('summary');
+    }
+
+    function renderHeatmap() {
+      document.getElementById('legend-fast').textContent = settings.fastSec.toFixed(1);
+      document.getElementById('legend-slow').textContent = settings.slowSec.toFixed(1);
+
+      const gridEl = document.getElementById('heatmap-grid');
+      gridEl.innerHTML = '';
+
+      let fastCount = 0;
+      let playedCount = 0;
+
+      for (let a = 1; a <= 9; a++) {
+        const rowEl = document.createElement('div');
+        rowEl.className = 'grid grid-cols-10 gap-1 sm:gap-1.5 items-center';
+
+        const rowHeader = document.createElement('div');
+        rowHeader.className = 'text-center font-extrabold text-xs sm:text-sm text-slate-500';
+        rowHeader.textContent = `${a}の段`;
+        rowEl.appendChild(rowHeader);
+
+        for (let b = 1; b <= 9; b++) {
+          const key = `${a}x${b}`;
+          const rec = records[key];
+          const status = getCellStatus(rec);
+
+          if (rec.attempts > 0) playedCount++;
+          if (status === 'fast') fastCount++;
+
+          let colorCls = 'bg-slate-100 text-slate-400 border-slate-200 hover:bg-slate-200';
+          let subText = '—';
+
+          if (status === 'fast') {
+            colorCls = 'bg-emerald-500 text-white border-emerald-600 shadow-xs hover:bg-emerald-600';
+            subText = `${rec.lastTime.toFixed(1)}s`;
+          } else if (status === 'weak') {
+            colorCls = 'bg-rose-500 text-white border-rose-600 shadow-xs hover:bg-rose-600';
+            subText = rec.lastCorrect === false ? '×' : `${rec.lastTime.toFixed(1)}s`;
+          } else if (status === 'normal') {
+            colorCls = 'bg-amber-300 text-slate-900 border-amber-400 hover:bg-amber-400';
+            subText = `${rec.lastTime.toFixed(1)}s`;
+          }
+
+          const isSelected = selectedCellKey === key;
+          const ringCls = isSelected ? 'ring-3 ring-indigo-600 ring-offset-1 z-10 scale-105' : '';
+
+          const cell = document.createElement('button');
+          cell.type = 'button';
+          cell.onclick = () => selectHeatmapCell(a, b);
+          cell.className = `heatmap-cell w-full rounded-lg sm:rounded-xl border flex flex-col items-center justify-center leading-none ${colorCls} ${ringCls}`;
+          cell.innerHTML = `
+            <span class="text-[11px] sm:text-sm font-extrabold">${a * b}</span>
+            <span class="text-[9px] sm:text-[10px] font-bold opacity-90 mt-0.5 tabular-nums">${subText}</span>
+          `;
+          rowEl.appendChild(cell);
+        }
+
+        gridEl.appendChild(rowEl);
+      }
+
+      document.getElementById('heatmap-stats').textContent =
+        `とくい: ${fastCount} / 81マス（ちょうせん済み: ${playedCount} / 81マス）`;
+
+      if (selectedCellKey) {
+        const [sa, sb] = selectedCellKey.split('x').map(Number);
+        showCellDetail(sa, sb);
+      }
+    }
+
+    function selectHeatmapCell(a, b) {
+      selectedCellKey = `${a}x${b}`;
+      renderHeatmap();
+      showCellDetail(a, b);
+    }
+
+    function showCellDetail(a, b) {
+      const key = `${a}x${b}`;
+      const rec = records[key];
+      const status = getCellStatus(rec);
+      const info = getStatusBadgeInfo(status);
+      const banner = document.getElementById('cell-detail-banner');
+
+      if (!rec || rec.attempts === 0) {
+        banner.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <span class="text-lg font-extrabold text-slate-800">${a} × ${b} = ${a * b}</span>
+            <span class="text-xs font-bold px-2.5 py-0.5 rounded-full ${info.cls}">${info.text}</span>
+          </div>
+          <span class="text-xs sm:text-sm text-slate-500 font-medium">まだ れんしゅうしていません</span>
+        `;
+        return;
+      }
+
+      const avgTime = (rec.totalTime / rec.attempts).toFixed(1);
+      const lastTimeStr = rec.lastTime !== null ? `${rec.lastTime.toFixed(1)}秒` : '—';
+      const lastMark = rec.lastCorrect === true ? '○' : (rec.lastCorrect === false ? '×' : '—');
+
+      banner.innerHTML = `
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-lg font-extrabold text-slate-800">${a} × ${b} = ${a * b}</span>
+          <span class="text-xs font-bold px-2.5 py-0.5 rounded-full ${info.cls}">${info.text}</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-3 text-xs sm:text-sm font-bold text-slate-700">
+          <span>前回: <span class="text-indigo-700">${lastTimeStr} (${lastMark})</span></span>
+          <span>平均: <span>${avgTime}秒</span></span>
+          <span>正解: <span>${rec.correctCount}/${rec.attempts}回</span></span>
+        </div>
+      `;
+    }
+
+    function openResetModal() {
+      document.getElementById('reset-modal').classList.remove('hidden');
+    }
+
+    function closeResetModal() {
+      document.getElementById('reset-modal').classList.add('hidden');
+    }
+
+    function executeResetRecords() {
+      records = createEmptyRecords();
+      saveRecordsToStorage();
+      selectedCellKey = null;
+      closeResetModal();
+      renderHeatmap();
+      document.getElementById('cell-detail-banner').innerHTML =
+        '<span class="text-sm text-emerald-700 font-bold">✓ 81マスの記録をリセットしました。</span>';
+    }
+
+    function syncSettingsUI() {
+      document.getElementById('input-fast-sec').value = settings.fastSec;
+      document.getElementById('input-slow-sec').value = settings.slowSec;
+      document.getElementById('val-fast-sec').textContent = Number(settings.fastSec).toFixed(1);
+      document.getElementById('val-slow-sec').textContent = Number(settings.slowSec).toFixed(1);
+      document.getElementById('settings-saved-msg').classList.add('hidden');
+    }
+
+    function previewSettings() {
+      const fastVal = parseFloat(document.getElementById('input-fast-sec').value);
+      const slowVal = parseFloat(document.getElementById('input-slow-sec').value);
+      document.getElementById('val-fast-sec').textContent = fastVal.toFixed(1);
+      document.getElementById('val-slow-sec').textContent = slowVal.toFixed(1);
+    }
+
+    function saveSettings() {
+      let fastVal = parseFloat(document.getElementById('input-fast-sec').value);
+      let slowVal = parseFloat(document.getElementById('input-slow-sec').value);
+
+      if (fastVal >= slowVal) {
+        slowVal = Math.min(20.0, Math.round((fastVal + 0.5) * 10) / 10);
+        document.getElementById('input-slow-sec').value = slowVal;
+        document.getElementById('val-slow-sec').textContent = slowVal.toFixed(1);
+      }
+
+      settings.fastSec = fastVal;
+      settings.slowSec = slowVal;
+      saveSettingsToStorage();
+
+      const msg = document.getElementById('settings-saved-msg');
+      msg.classList.remove('hidden');
+      setTimeout(() => msg.classList.add('hidden'), 2500);
+    }
+
+    function resetSettingsDefault() {
+      settings = { ...DEFAULT_SETTINGS };
+      saveSettingsToStorage();
+      syncSettingsUI();
+      const msg = document.getElementById('settings-saved-msg');
+      msg.textContent = '✓ 初期値にもどしました！';
+      msg.classList.remove('hidden');
+      setTimeout(() => {
+        msg.classList.add('hidden');
+        msg.textContent = '✓ 保存しました！';
+      }, 2500);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderSetupGrids();
+      setMode('single');
+      setSingleOrder('asc');
+    });
+  </script>
+</body>
+</html>
