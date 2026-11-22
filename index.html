@@ -35,6 +35,84 @@
       background: #cbd5e1;
       border-radius: 9999px;
     }
+
+    /* カスタム範囲スライダー */
+    .range-slider-wrap {
+      position: relative;
+      height: 28px;
+      display: flex;
+      align-items: center;
+    }
+    .range-slider-track {
+      position: relative;
+      width: 100%;
+      height: 10px;
+      background: #e2e8f0;
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+    .range-fill-left {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      background: #10b981;
+      border-radius: 9999px;
+      transition: width 0.05s ease-out;
+    }
+    .range-fill-right {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      background: #f43f5e;
+      border-radius: 9999px;
+      transition: width 0.05s ease-out;
+    }
+    .range-slider-input {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      background: transparent;
+      -webkit-appearance: none;
+      appearance: none;
+      cursor: pointer;
+      z-index: 2;
+    }
+    .range-slider-input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 9999px;
+      background: #ffffff;
+      border: 3px solid #334155;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.2);
+      cursor: pointer;
+    }
+    .range-slider-input.thumb-fast::-webkit-slider-thumb {
+      border-color: #059669;
+    }
+    .range-slider-input.thumb-slow::-webkit-slider-thumb {
+      border-color: #e11d48;
+    }
+    .range-slider-input::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 9999px;
+      background: #ffffff;
+      border: 3px solid #334155;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.2);
+      cursor: pointer;
+    }
+    .range-slider-input.thumb-fast::-moz-range-thumb {
+      border-color: #059669;
+    }
+    .range-slider-input.thumb-slow::-moz-range-thumb {
+      border-color: #e11d48;
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
@@ -75,11 +153,11 @@
         <div class="grid grid-cols-2 gap-2.5 sm:gap-4">
           <button id="mode-btn-single" onclick="setMode('single')" class="py-3.5 px-3 rounded-2xl font-extrabold text-base sm:text-lg border-2 transition flex flex-col items-center justify-center gap-1 border-indigo-600 bg-indigo-50 text-indigo-700">
             <span>1つの段だけ</span>
-            <span class="text-xs font-medium opacity-80">じゅんばん・ばらばら</span>
+            <span class="text-xs font-medium opacity-80">じゅんばん・ばらばら（9問）</span>
           </button>
           <button id="mode-btn-multi" onclick="setMode('multi')" class="py-3.5 px-3 rounded-2xl font-extrabold text-base sm:text-lg border-2 transition flex flex-col items-center justify-center gap-1 border-slate-200 bg-white text-slate-600 hover:bg-slate-50">
             <span>いくつかの段</span>
-            <span class="text-xs font-medium opacity-80">えらんだ段からランダム</span>
+            <span class="text-xs font-medium opacity-80">2段いじょう・ランダム（10問）</span>
           </button>
         </div>
       </div>
@@ -100,10 +178,10 @@
           </h3>
           <div class="grid grid-cols-3 gap-2.5">
             <button id="order-btn-asc" onclick="setSingleOrder('asc')" class="py-3 px-2 rounded-2xl font-bold text-sm sm:text-base border-2 transition border-indigo-600 bg-indigo-50 text-indigo-700">
-              1から順<br><span class="text-xs font-normal">(あがり)</span>
+              1からじゅんばん<br><span class="text-xs font-normal">(あがり)</span>
             </button>
             <button id="order-btn-desc" onclick="setSingleOrder('desc')" class="py-3 px-2 rounded-2xl font-bold text-sm sm:text-base border-2 transition border-slate-200 bg-white text-slate-600 hover:bg-slate-50">
-              9から逆順<br><span class="text-xs font-normal">(さがり)</span>
+              9からぎゃくじゅん<br><span class="text-xs font-normal">(さがり)</span>
             </button>
             <button id="order-btn-random" onclick="setSingleOrder('random')" class="py-3 px-2 rounded-2xl font-bold text-sm sm:text-base border-2 transition border-slate-200 bg-white text-slate-600 hover:bg-slate-50">
               ランダム<br><span class="text-xs font-normal">(ばらばら)</span>
@@ -116,7 +194,7 @@
         <div class="flex items-center justify-between">
           <h3 class="text-base sm:text-lg font-extrabold text-slate-700 flex items-center gap-2">
             <span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm">2</span>
-            れんしゅうする段をえらぶ
+            れんしゅうする段をえらぶ（2段以上）
           </h3>
           <div class="flex gap-2">
             <button onclick="selectAllMulti(true)" class="text-xs sm:text-sm font-bold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200">ぜんぶ選ぶ</button>
@@ -124,23 +202,44 @@
           </div>
         </div>
         <div id="multi-dan-grid" class="grid grid-cols-3 sm:grid-cols-9 gap-2"></div>
-        <p class="text-xs text-slate-500">※ えらんだ段の問題がランダムに出ます。</p>
+        <p class="text-xs text-slate-500">※ 2つ以上の段をえらぶと、その中からランダムに10問出題されます。</p>
       </div>
 
-      <div class="bg-white p-4 sm:p-5 rounded-3xl shadow-sm border border-slate-200">
-        <label class="flex items-center justify-between cursor-pointer gap-4">
-          <div class="flex items-center gap-3">
-            <span class="w-10 h-10 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center font-extrabold text-lg shrink-0">!</span>
-            <div>
-              <div class="font-extrabold text-slate-800 text-base sm:text-lg">「苦手（赤）」の問題だけ出す</div>
-              <div class="text-xs sm:text-sm text-slate-500">時間がかかった問題・まちがえた問題に絞って特訓します</div>
+      <!-- オプション群 -->
+      <div class="space-y-3">
+        <!-- 読み仮名を表示する（デフォルト：オフ） -->
+        <div class="bg-white p-4 sm:p-5 rounded-3xl shadow-sm border border-slate-200">
+          <label class="flex items-center justify-between cursor-pointer gap-4">
+            <div class="flex items-center gap-3">
+              <span class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center font-extrabold text-base shrink-0">あ</span>
+              <div>
+                <div class="font-extrabold text-slate-800 text-base sm:text-lg">読みがなをひょうじする</div>
+                <div class="text-xs sm:text-sm text-slate-500">九九の読み方をひょうじします</div>
+              </div>
             </div>
-          </div>
-          <div class="relative inline-flex items-center shrink-0">
-            <input type="checkbox" id="weak-only-toggle" class="sr-only peer">
-            <div class="w-14 h-8 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-rose-500"></div>
-          </div>
-        </label>
+            <div class="relative inline-flex items-center shrink-0">
+              <input type="checkbox" id="reading-toggle" class="sr-only peer">
+              <div class="w-14 h-8 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-amber-500"></div>
+            </div>
+          </label>
+        </div>
+
+        <!-- 苦手（赤）の問題だけ出す -->
+        <div class="bg-white p-4 sm:p-5 rounded-3xl shadow-sm border border-slate-200">
+          <label class="flex items-center justify-between cursor-pointer gap-4">
+            <div class="flex items-center gap-3">
+              <span class="w-10 h-10 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center font-extrabold text-lg shrink-0">!</span>
+              <div>
+                <div class="font-extrabold text-slate-800 text-base sm:text-lg">「にがて（赤）」のもんだいだけ出す</div>
+                <div class="text-xs sm:text-sm text-slate-500">時間がかかったもんだい・まちがえたもんだいだけやる</div>
+              </div>
+            </div>
+            <div class="relative inline-flex items-center shrink-0">
+              <input type="checkbox" id="weak-only-toggle" class="sr-only peer">
+              <div class="w-14 h-8 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-rose-500"></div>
+            </div>
+          </label>
+        </div>
       </div>
 
       <div class="pt-1 pb-4">
@@ -171,28 +270,44 @@
         </div>
       </div>
 
-      <div id="question-card" onclick="revealAnswer()" class="flex-1 min-h-[260px] sm:min-h-[320px] bg-white rounded-3xl border-2 border-slate-200 shadow-md flex flex-col items-center justify-center p-6 cursor-pointer relative overflow-hidden transition active:scale-[0.99]">
+      <!-- 問題カード：問題文＆読み仮名の位置が答え表示時も変わらないよう構成 -->
+      <div id="question-card" onclick="revealAnswer()" class="flex-1 min-h-[340px] sm:min-h-[390px] bg-white rounded-3xl border-2 border-slate-200 shadow-md flex flex-col justify-between p-5 sm:p-7 cursor-pointer relative overflow-hidden transition active:scale-[0.99]">
         <div id="question-prev-badge" class="absolute top-4 right-4 text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-500">
           はじめて
         </div>
-        <div class="text-center my-auto">
-          <div id="question-text" class="text-6xl sm:text-8xl font-extrabold text-slate-800 tracking-wider leading-tight">
+
+        <!-- 上部：問題文エリア（固定位置・固定高さ） -->
+        <div class="text-center pt-4 sm:pt-5">
+          <div id="question-reading" class="h-7 sm:h-8 text-lg sm:text-2xl font-extrabold text-amber-600 tracking-widest flex items-center justify-center">
+            <!-- 問題時の読み仮名 -->
+          </div>
+          <div id="question-text" class="mt-1 text-6xl sm:text-8xl font-extrabold text-slate-800 tracking-wider leading-tight">
             7 × 8
           </div>
-          <div id="answer-area" class="hidden mt-4 sm:mt-6 pt-4 sm:pt-6 border-t-2 border-dashed border-slate-200 animate-pop">
+        </div>
+
+        <!-- 下部：答え表示エリア（あらかじめスペースを確保して位置ズレを防止） -->
+        <div class="w-full min-h-[145px] sm:min-h-[165px] pt-3 sm:pt-4 border-t-2 border-dashed border-slate-200 flex flex-col items-center justify-center relative">
+          <div id="answer-area" class="invisible text-center w-full">
             <div class="flex items-baseline justify-center gap-3">
               <span class="text-2xl sm:text-3xl font-bold text-slate-400">=</span>
-              <span id="answer-text" class="text-6xl sm:text-8xl font-extrabold text-indigo-600">56</span>
+              <span id="answer-text" class="text-6xl sm:text-8xl font-extrabold text-indigo-600 leading-none">56</span>
             </div>
-            <div class="mt-3 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100">
-              <span class="text-sm font-bold text-slate-600">かかった時間：</span>
-              <span id="result-time-text" class="text-lg sm:text-xl font-extrabold text-slate-800 tabular-nums">1.8秒</span>
+            <div id="answer-reading" class="h-6 sm:h-7 mt-1.5 text-base sm:text-xl font-extrabold text-indigo-500 tracking-wider flex items-center justify-center">
+              <!-- こたえ時の読み仮名 -->
+            </div>
+            <div class="mt-2 inline-flex items-center gap-2 px-4 py-1 rounded-full bg-slate-100">
+              <span class="text-xs sm:text-sm font-bold text-slate-600">かかった時間：</span>
+              <span id="result-time-text" class="text-base sm:text-lg font-extrabold text-slate-800 tabular-nums">1.8秒</span>
               <span id="result-rank-badge" class="text-xs font-extrabold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700">とくい！</span>
             </div>
           </div>
-        </div>
-        <div id="tap-prompt" class="mt-4 text-indigo-600 font-extrabold text-base sm:text-lg bg-indigo-50 px-5 py-2.5 rounded-2xl animate-pulse">
-          こえに出して 言えたら タップ！
+
+          <div id="tap-prompt" class="absolute inset-x-0 bottom-1 flex justify-center">
+            <span class="text-indigo-600 font-extrabold text-base sm:text-lg bg-indigo-50 px-5 py-2.5 rounded-2xl animate-pulse">
+              こえに出して 言えたら タップ！
+            </span>
+          </div>
         </div>
       </div>
 
@@ -220,11 +335,11 @@
           ★
         </div>
         <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">おつかれさま！</h2>
-        <p class="text-slate-600 font-medium">今回のれんしゅう結果が 81マスに きろくされました。</p>
+        <p class="text-slate-600 font-medium">今回のれんしゅうけっかが 81マスに きろくされました。</p>
 
         <div class="grid grid-cols-3 gap-3 max-w-md mx-auto pt-2">
           <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-            <div class="text-xs font-bold text-slate-500">問題数</div>
+            <div class="text-xs font-bold text-slate-500">もんだい数</div>
             <div id="sum-total" class="text-2xl font-extrabold text-slate-800 mt-1">9問</div>
           </div>
           <div class="bg-emerald-50 p-3 rounded-2xl border border-emerald-100">
@@ -275,7 +390,7 @@
             </span>
             <span class="flex items-center gap-1 px-2 py-1 rounded-lg bg-rose-100 text-rose-800">
               <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-              にがて(<span id="legend-slow">8.0</span>秒以上/×)
+              にがて(<span id="legend-slow">5.0</span>秒以上/×)
             </span>
             <span class="flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-100 text-slate-600">
               <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
@@ -317,30 +432,42 @@
           <p class="text-xs sm:text-sm text-slate-500 mt-1">81マスの「とくい（緑）」「ふつう（黄）」「にがて（赤）」の基準秒数を変更できます。</p>
         </div>
 
-        <div class="space-y-4 max-w-lg">
+        <div class="space-y-5 max-w-lg">
+          <!-- とくい（緑）：左から色がつくバー -->
           <div>
             <div class="flex justify-between items-center mb-1.5">
               <label for="input-fast-sec" class="font-bold text-slate-700 text-sm sm:text-base">
-                「とくい（緑）」にする基準（この秒数以下で ○ なら緑）
+                「とくい（緑）」の基準（この秒数以下で ○ なら緑）
               </label>
-              <span class="font-extrabold text-emerald-600 text-base"><span id="val-fast-sec">2.0</span> 秒以下</span>
+              <span class="font-extrabold text-emerald-600 text-base tabular-nums"><span id="val-fast-sec">2.0</span> 秒以下</span>
             </div>
-            <input id="input-fast-sec" type="range" min="0.5" max="10.0" step="0.5" value="2.0" oninput="previewSettings()" class="w-full accent-emerald-500 h-2 bg-slate-200 rounded-lg cursor-pointer">
-            <div class="flex justify-between text-[11px] text-slate-400 mt-1">
-              <span>0.5秒（超スピード）</span><span>2.0秒（標準）</span><span>10.0秒</span>
+            <div class="range-slider-wrap">
+              <div class="range-slider-track">
+                <div id="bar-fast-left" class="range-fill-left" style="width: 15.79%;"></div>
+              </div>
+              <input id="input-fast-sec" type="range" min="0.5" max="10.0" step="0.5" value="2.0" oninput="previewSettings()" class="range-slider-input thumb-fast">
+            </div>
+            <div class="flex justify-between text-[11px] text-slate-400 mt-1 tabular-nums">
+              <span>0.5秒</span><span>2.0秒</span><span>5.0秒</span><span>10.0秒</span>
             </div>
           </div>
 
+          <!-- にがて（赤）：右から色がつくバー -->
           <div>
             <div class="flex justify-between items-center mb-1.5">
               <label for="input-slow-sec" class="font-bold text-slate-700 text-sm sm:text-base">
-                「にがて（赤）」にする基準（この秒数以上で赤）
+                「にがて（赤）」の基準（この秒数以上で赤）
               </label>
-              <span class="font-extrabold text-rose-600 text-base"><span id="val-slow-sec">8.0</span> 秒以上</span>
+              <span class="font-extrabold text-rose-600 text-base tabular-nums"><span id="val-slow-sec">5.0</span> 秒以上</span>
             </div>
-            <input id="input-slow-sec" type="range" min="2.0" max="20.0" step="0.5" value="8.0" oninput="previewSettings()" class="w-full accent-rose-500 h-2 bg-slate-200 rounded-lg cursor-pointer">
-            <div class="flex justify-between text-[11px] text-slate-400 mt-1">
-              <span>2.0秒</span><span>8.0秒（標準）</span><span>20.0秒</span>
+            <div class="range-slider-wrap">
+              <div class="range-slider-track">
+                <div id="bar-slow-right" class="range-fill-right" style="width: 52.63%;"></div>
+              </div>
+              <input id="input-slow-sec" type="range" min="0.5" max="10.0" step="0.5" value="5.0" oninput="previewSettings()" class="range-slider-input thumb-slow">
+            </div>
+            <div class="flex justify-between text-[11px] text-slate-400 mt-1 tabular-nums">
+              <span>0.5秒</span><span>2.0秒</span><span>5.0秒</span><span>10.0秒</span>
             </div>
             <p class="text-xs text-slate-500 mt-1.5">※ まちがえた（×）場合は、タイムに関わらず「にがて（赤）」になります。</p>
           </div>
@@ -351,7 +478,7 @@
             せっていを保存する
           </button>
           <button onclick="resetSettingsDefault()" class="px-4 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-sm transition">
-            初期値（2.0秒 / 8.0秒）にもどす
+            初期値（2.0秒 / 5.0秒）にもどす
           </button>
           <span id="settings-saved-msg" class="text-sm font-bold text-emerald-600 hidden">✓ 保存しました！</span>
         </div>
@@ -360,9 +487,24 @@
 
   </main>
 
-  <footer class="py-3 text-center text-xs text-slate-400">
-    九九暗算マスター — 声に出して どんどん覚えよう！
+  <footer class="py-3 px-4 text-center text-xs text-slate-500 leading-relaxed">
+    個人情報は一切収集していません。れんしゅうの記録はお使いの端末（ブラウザ）の中にのみ保存されます。
   </footer>
+
+  <!-- お知らせメッセージモーダル（alert代わり） -->
+  <div id="info-modal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-xl space-y-4 animate-pop">
+      <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-2xl font-extrabold mx-auto">
+        !
+      </div>
+      <p id="info-modal-text" class="text-sm sm:text-base text-slate-700 font-bold text-center leading-relaxed whitespace-pre-line"></p>
+      <div class="pt-1">
+        <button onclick="closeInfoModal()" class="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-sm sm:text-base transition shadow-sm">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- リセット確認モーダル -->
   <div id="reset-modal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
@@ -389,10 +531,119 @@
     const STORAGE_KEY_RECORDS = 'kuku_master_records_v1';
     const STORAGE_KEY_SETTINGS = 'kuku_master_settings_v1';
 
+    const SLIDER_MIN = 0.5;
+    const SLIDER_MAX = 10.0;
+    const MULTI_SESSION_LIMIT = 10;
+
     const DEFAULT_SETTINGS = {
       fastSec: 2.0,
-      slowSec: 8.0
+      slowSec: 5.0
     };
+
+    // 九九読み仮名データ（a × b）
+    const KUKU_READINGS = {
+      // 1の段
+      '1x1': { q: 'いんいちが', ans: 'いち' },
+      '1x2': { q: 'いんにが', ans: 'に' },
+      '1x3': { q: 'いんさんが', ans: 'さん' },
+      '1x4': { q: 'いんしが', ans: 'し' },
+      '1x5': { q: 'いんごが', ans: 'ご' },
+      '1x6': { q: 'いんろくが', ans: 'ろく' },
+      '1x7': { q: 'いんしちが', ans: 'しち' },
+      '1x8': { q: 'いんはちが', ans: 'はち' },
+      '1x9': { q: 'いんくが', ans: 'く' },
+      // 2の段
+      '2x1': { q: 'にいちが', ans: 'に' },
+      '2x2': { q: 'ににんが', ans: 'し' },
+      '2x3': { q: 'にさんが', ans: 'ろく' },
+      '2x4': { q: 'にしが', ans: 'はち' },
+      '2x5': { q: 'にご', ans: 'じゅう' },
+      '2x6': { q: 'にろく', ans: 'じゅうに' },
+      '2x7': { q: 'にしち', ans: 'じゅうし' },
+      '2x8': { q: 'にはち', ans: 'じゅうろく' },
+      '2x9': { q: 'にく', ans: 'じゅうはち' },
+      // 3の段
+      '3x1': { q: 'さんいちが', ans: 'さん' },
+      '3x2': { q: 'さんにが', ans: 'ろく' },
+      '3x3': { q: 'さざんが', ans: 'く' },
+      '3x4': { q: 'さんし', ans: 'じゅうに' },
+      '3x5': { q: 'さんご', ans: 'じゅうご' },
+      '3x6': { q: 'さぶろく', ans: 'じゅうはち' },
+      '3x7': { q: 'さんしち', ans: 'にじゅういち' },
+      '3x8': { q: 'さんぱ', ans: 'にじゅうし' },
+      '3x9': { q: 'さんく', ans: 'にじゅうしち' },
+      // 4の段
+      '4x1': { q: 'しいちが', ans: 'し' },
+      '4x2': { q: 'しにが', ans: 'はち' },
+      '4x3': { q: 'しさん', ans: 'じゅうに' },
+      '4x4': { q: 'しし', ans: 'じゅうろく' },
+      '4x5': { q: 'しご', ans: 'にじゅう' },
+      '4x6': { q: 'しろく', ans: 'にじゅうし' },
+      '4x7': { q: 'ししち', ans: 'にじゅうはち' },
+      '4x8': { q: 'しは', ans: 'さんじゅうに' },
+      '4x9': { q: 'しく', ans: 'さんじゅうろく' },
+      // 5の段
+      '5x1': { q: 'ごいちが', ans: 'ご' },
+      '5x2': { q: 'ごに', ans: 'じゅう' },
+      '5x3': { q: 'ごさん', ans: 'じゅうご' },
+      '5x4': { q: 'ごし', ans: 'にじゅう' },
+      '5x5': { q: 'ごご', ans: 'にじゅうご' },
+      '5x6': { q: 'ごろく', ans: 'さんじゅう' },
+      '5x7': { q: 'ごしち', ans: 'さんじゅうご' },
+      '5x8': { q: 'ごは', ans: 'しじゅう' },
+      '5x9': { q: 'ごっく', ans: 'しじゅうご' },
+      // 6の段
+      '6x1': { q: 'ろくいちが', ans: 'ろく' },
+      '6x2': { q: 'ろくに', ans: 'じゅうに' },
+      '6x3': { q: 'ろくさん', ans: 'じゅうはち' },
+      '6x4': { q: 'ろくし', ans: 'にじゅうし' },
+      '6x5': { q: 'ろくご', ans: 'さんじゅう' },
+      '6x6': { q: 'ろくろく', ans: 'さんじゅうろく' },
+      '6x7': { q: 'ろくしち', ans: 'しじゅうに' },
+      '6x8': { q: 'ろくは', ans: 'しじゅうはち' },
+      '6x9': { q: 'ろっく', ans: 'ごじゅうし' },
+      // 7の段
+      '7x1': { q: 'しちいちが', ans: 'しち' },
+      '7x2': { q: 'しちに', ans: 'じゅうし' },
+      '7x3': { q: 'しちさん', ans: 'にじゅういち' },
+      '7x4': { q: 'しちし', ans: 'にじゅうはち' },
+      '7x5': { q: 'しちご', ans: 'さんじゅうご' },
+      '7x6': { q: 'しちろく', ans: 'しじゅうに' },
+      '7x7': { q: 'しちしち', ans: 'しじゅうく' },
+      '7x8': { q: 'しちは', ans: 'ごじゅうろく' },
+      '7x9': { q: 'しちく', ans: 'ろくじゅうさん' },
+      // 8の段
+      '8x1': { q: 'はちいちが', ans: 'はち' },
+      '8x2': { q: 'はちに', ans: 'じゅうろく' },
+      '8x3': { q: 'はちさん', ans: 'にじゅうし' },
+      '8x4': { q: 'はちし', ans: 'さんじゅうに' },
+      '8x5': { q: 'はちご', ans: 'しじゅう' },
+      '8x6': { q: 'はちろく', ans: 'しじゅうはち' },
+      '8x7': { q: 'はちしち', ans: 'ごじゅうろく' },
+      '8x8': { q: 'はっぱ', ans: 'ろくじゅうし' },
+      '8x9': { q: 'はっく', ans: 'しちじゅうに' },
+      // 9の段
+      '9x1': { q: 'くいちが', ans: 'く' },
+      '9x2': { q: 'くに', ans: 'じゅうはち' },
+      '9x3': { q: 'くさん', ans: 'にじゅうしち' },
+      '9x4': { q: 'くし', ans: 'さんじゅうろく' },
+      '9x5': { q: 'くご', ans: 'しじゅうご' },
+      '9x6': { q: 'くろく', ans: 'ごじゅうし' },
+      '9x7': { q: 'くしち', ans: 'ろくじゅうさん' },
+      '9x8': { q: 'くは', ans: 'しちじゅうに' },
+      '9x9': { q: 'くく', ans: 'はちじゅういち' }
+    };
+
+    function getReadingInfo(a, b) {
+      const key = `${a}x${b}`;
+      return KUKU_READINGS[key] || { q: '', ans: '' };
+    }
+
+    function clampSliderValue(val) {
+      const num = Number(val);
+      if (Number.isNaN(num)) return SLIDER_MIN;
+      return Math.min(SLIDER_MAX, Math.max(SLIDER_MIN, Math.round(num * 10) / 10));
+    }
 
     function createEmptyRecords() {
       const rec = {};
@@ -417,7 +668,8 @@
       mode: 'single',
       singleDan: 7,
       singleOrder: 'asc',
-      multiDans: [2, 3, 4, 5],
+      multiDans: [],
+      showReading: false,
       weakOnly: false
     };
 
@@ -430,10 +682,20 @@
       elapsedBeforePause: 0,
       timerInterval: null,
       results: [],
-      label: ''
+      label: '',
+      showReading: false
     };
 
     let selectedCellKey = null;
+
+    function showInfoModal(message) {
+      document.getElementById('info-modal-text').textContent = message;
+      document.getElementById('info-modal').classList.remove('hidden');
+    }
+
+    function closeInfoModal() {
+      document.getElementById('info-modal').classList.add('hidden');
+    }
 
     function loadSettings() {
       try {
@@ -441,8 +703,8 @@
         if (!raw) return { ...DEFAULT_SETTINGS };
         const parsed = JSON.parse(raw);
         return {
-          fastSec: typeof parsed.fastSec === 'number' ? parsed.fastSec : DEFAULT_SETTINGS.fastSec,
-          slowSec: typeof parsed.slowSec === 'number' ? parsed.slowSec : DEFAULT_SETTINGS.slowSec
+          fastSec: typeof parsed.fastSec === 'number' ? clampSliderValue(parsed.fastSec) : DEFAULT_SETTINGS.fastSec,
+          slowSec: typeof parsed.slowSec === 'number' ? clampSliderValue(parsed.slowSec) : DEFAULT_SETTINGS.slowSec
         };
       } catch (e) {
         return { ...DEFAULT_SETTINGS };
@@ -639,6 +901,7 @@
     }
 
     function buildQuestionList() {
+      setupState.showReading = document.getElementById('reading-toggle').checked;
       setupState.weakOnly = document.getElementById('weak-only-toggle').checked;
       let list = [];
       let label = '';
@@ -658,12 +921,12 @@
         }
         list = multipliers.map(b => ({ a: d, b, key: `${d}x${b}`, answer: d * b }));
       } else {
-        if (setupState.multiDans.length === 0) {
-          alert('れんしゅうする段を 1つ以上 えらんでください！');
+        if (setupState.multiDans.length < 2) {
+          showInfoModal('「いくつかの段」では 2つ以上の段をえらんでください！');
           return null;
         }
         const sortedDans = [...setupState.multiDans].sort((a, b) => a - b);
-        label = sortedDans.length === 9 ? 'ぜんぶの段（1〜9）' : `${sortedDans.join('・')}の段`;
+        label = sortedDans.length === 9 ? 'ぜんぶの段（10問）' : `${sortedDans.join('・')}の段（10問）`;
         for (const a of sortedDans) {
           for (let b = 1; b <= 9; b++) {
             list.push({ a, b, key: `${a}x${b}`, answer: a * b });
@@ -676,12 +939,16 @@
         list = list.filter(q => getCellStatus(records[q.key]) === 'weak');
         label += '・苦手のみ';
         if (list.length === 0) {
-          alert('えらんだ範囲に「苦手（赤）」の問題はありませんでした！すごい！\nほかの段や「苦手のみ」をオフにして試してみてください。');
+          showInfoModal('えらんだ段に「にがて（赤）」のもんだいはありませんでした！すごい！\nほかの段や「にがてのみ」をオフにしてためしてみてください。');
           return null;
         }
       }
 
-      return { list, label };
+      if (setupState.mode === 'multi') {
+        list = list.slice(0, MULTI_SESSION_LIMIT);
+      }
+
+      return { list, label, showReading: setupState.showReading };
     }
 
     function startPractice() {
@@ -697,7 +964,8 @@
         elapsedBeforePause: 0,
         timerInterval: null,
         results: [],
-        label: built.label
+        label: built.label,
+        showReading: built.showReading
       };
 
       switchTab('practice');
@@ -709,14 +977,33 @@
         switchTab('setup');
         return;
       }
-      const reshuffled = (setupState.mode === 'multi' || setupState.singleOrder === 'random')
+
+      if (setupState.mode === 'multi') {
+        const built = buildQuestionList();
+        if (!built) {
+          switchTab('setup');
+          return;
+        }
+        session.active = true;
+        session.questions = built.list;
+        session.currentIndex = 0;
+        session.results = [];
+        session.label = built.label;
+        session.showReading = built.showReading;
+        switchTab('practice');
+        loadQuestion(0);
+        return;
+      }
+
+      const nextQuestions = (setupState.singleOrder === 'random')
         ? shuffleArray(session.questions)
         : [...session.questions];
 
       session.active = true;
-      session.questions = reshuffled;
+      session.questions = nextQuestions;
       session.currentIndex = 0;
       session.results = [];
+      session.showReading = document.getElementById('reading-toggle').checked;
       switchTab('practice');
       loadQuestion(0);
     }
@@ -729,6 +1016,8 @@
 
     function loadQuestion(index) {
       const q = session.questions[index];
+      const reading = getReadingInfo(q.a, q.b);
+
       session.currentIndex = index;
       session.phase = 'question';
       session.elapsedBeforePause = 0;
@@ -738,6 +1027,17 @@
       document.getElementById('practice-progress').textContent = `${index + 1} / ${session.questions.length}`;
       document.getElementById('question-text').textContent = `${q.a} × ${q.b}`;
       document.getElementById('answer-text').textContent = q.answer;
+
+      const qReadingEl = document.getElementById('question-reading');
+      const ansReadingEl = document.getElementById('answer-reading');
+
+      if (session.showReading) {
+        qReadingEl.textContent = reading.q;
+        ansReadingEl.textContent = reading.q && reading.ans ? `${reading.q} ${reading.ans}` : '';
+      } else {
+        qReadingEl.textContent = '';
+        ansReadingEl.textContent = '';
+      }
 
       const prevRec = records[q.key];
       const prevBadge = document.getElementById('question-prev-badge');
@@ -751,7 +1051,8 @@
         prevBadge.className = 'absolute top-4 right-4 text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-500';
       }
 
-      document.getElementById('answer-area').classList.add('hidden');
+      document.getElementById('answer-area').classList.add('invisible');
+      document.getElementById('answer-area').classList.remove('animate-pop');
       document.getElementById('tap-prompt').classList.remove('hidden');
       document.getElementById('btn-show-answer').classList.remove('hidden');
       document.getElementById('grade-buttons').classList.add('hidden');
@@ -804,7 +1105,10 @@
       }
 
       document.getElementById('tap-prompt').classList.add('hidden');
-      document.getElementById('answer-area').classList.remove('hidden');
+      const answerArea = document.getElementById('answer-area');
+      answerArea.classList.remove('invisible');
+      answerArea.classList.add('animate-pop');
+
       document.getElementById('btn-show-answer').classList.add('hidden');
       document.getElementById('grade-buttons').classList.remove('hidden');
     }
@@ -950,12 +1254,17 @@
       const rec = records[key];
       const status = getCellStatus(rec);
       const info = getStatusBadgeInfo(status);
+      const reading = getReadingInfo(a, b);
       const banner = document.getElementById('cell-detail-banner');
+      const readingLabel = reading.q && reading.ans
+        ? `<span class="text-xs font-bold text-slate-500">(${reading.q} ${reading.ans})</span>`
+        : '';
 
       if (!rec || rec.attempts === 0) {
         banner.innerHTML = `
-          <div class="flex items-center gap-2.5">
+          <div class="flex flex-wrap items-center gap-2">
             <span class="text-lg font-extrabold text-slate-800">${a} × ${b} = ${a * b}</span>
+            ${readingLabel}
             <span class="text-xs font-bold px-2.5 py-0.5 rounded-full ${info.cls}">${info.text}</span>
           </div>
           <span class="text-xs sm:text-sm text-slate-500 font-medium">まだ れんしゅうしていません</span>
@@ -970,6 +1279,7 @@
       banner.innerHTML = `
         <div class="flex flex-wrap items-center gap-2">
           <span class="text-lg font-extrabold text-slate-800">${a} × ${b} = ${a * b}</span>
+          ${readingLabel}
           <span class="text-xs font-bold px-2.5 py-0.5 rounded-full ${info.cls}">${info.text}</span>
         </div>
         <div class="flex flex-wrap items-center gap-3 text-xs sm:text-sm font-bold text-slate-700">
@@ -998,30 +1308,44 @@
         '<span class="text-sm text-emerald-700 font-bold">✓ 81マスの記録をリセットしました。</span>';
     }
 
+    function updateRangeBars(fastVal, slowVal) {
+      const span = SLIDER_MAX - SLIDER_MIN;
+      const leftPct = Math.max(0, Math.min(100, ((fastVal - SLIDER_MIN) / span) * 100));
+      const rightPct = Math.max(0, Math.min(100, ((SLIDER_MAX - slowVal) / span) * 100));
+
+      document.getElementById('bar-fast-left').style.width = `${leftPct}%`;
+      document.getElementById('bar-slow-right').style.width = `${rightPct}%`;
+    }
+
     function syncSettingsUI() {
-      document.getElementById('input-fast-sec').value = settings.fastSec;
-      document.getElementById('input-slow-sec').value = settings.slowSec;
-      document.getElementById('val-fast-sec').textContent = Number(settings.fastSec).toFixed(1);
-      document.getElementById('val-slow-sec').textContent = Number(settings.slowSec).toFixed(1);
+      const fastVal = clampSliderValue(settings.fastSec);
+      const slowVal = clampSliderValue(settings.slowSec);
+
+      document.getElementById('input-fast-sec').value = fastVal;
+      document.getElementById('input-slow-sec').value = slowVal;
+      document.getElementById('val-fast-sec').textContent = fastVal.toFixed(1);
+      document.getElementById('val-slow-sec').textContent = slowVal.toFixed(1);
+      updateRangeBars(fastVal, slowVal);
       document.getElementById('settings-saved-msg').classList.add('hidden');
     }
 
     function previewSettings() {
-      const fastVal = parseFloat(document.getElementById('input-fast-sec').value);
-      const slowVal = parseFloat(document.getElementById('input-slow-sec').value);
+      const fastVal = clampSliderValue(document.getElementById('input-fast-sec').value);
+      const slowVal = clampSliderValue(document.getElementById('input-slow-sec').value);
       document.getElementById('val-fast-sec').textContent = fastVal.toFixed(1);
       document.getElementById('val-slow-sec').textContent = slowVal.toFixed(1);
+      updateRangeBars(fastVal, slowVal);
     }
 
     function saveSettings() {
-      let fastVal = parseFloat(document.getElementById('input-fast-sec').value);
-      let slowVal = parseFloat(document.getElementById('input-slow-sec').value);
+      const fastVal = clampSliderValue(document.getElementById('input-fast-sec').value);
+      const slowVal = clampSliderValue(document.getElementById('input-slow-sec').value);
 
-      if (fastVal >= slowVal) {
-        slowVal = Math.min(20.0, Math.round((fastVal + 0.5) * 10) / 10);
-        document.getElementById('input-slow-sec').value = slowVal;
-        document.getElementById('val-slow-sec').textContent = slowVal.toFixed(1);
-      }
+      document.getElementById('input-fast-sec').value = fastVal;
+      document.getElementById('input-slow-sec').value = slowVal;
+      document.getElementById('val-fast-sec').textContent = fastVal.toFixed(1);
+      document.getElementById('val-slow-sec').textContent = slowVal.toFixed(1);
+      updateRangeBars(fastVal, slowVal);
 
       settings.fastSec = fastVal;
       settings.slowSec = slowVal;
@@ -1049,6 +1373,7 @@
       renderSetupGrids();
       setMode('single');
       setSingleOrder('asc');
+      syncSettingsUI();
     });
   </script>
 </body>
